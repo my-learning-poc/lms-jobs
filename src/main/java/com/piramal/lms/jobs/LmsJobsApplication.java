@@ -3,13 +3,15 @@ package com.piramal.lms.jobs;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableBatchProcessing
-@EnableAsync
-@EnableScheduling
+//@EnableAsync
+//@EnableScheduling
+@EntityScan("com.piramal.lms.jobs.model")
 public class LmsJobsApplication {
 
     public static void main(String[] args) {

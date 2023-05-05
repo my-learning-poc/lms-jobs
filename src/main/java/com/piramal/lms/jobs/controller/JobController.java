@@ -15,12 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
-@RestController
-@RequestMapping("/api/job")
+//@RestController
+//@RequestMapping("/api/job")
 public class JobController {
 	
 	private final JobService jobService;
-	
 	private final JobOperator jobOperator;
 
 	public JobController(JobService jobService, JobOperator jobOperator) {

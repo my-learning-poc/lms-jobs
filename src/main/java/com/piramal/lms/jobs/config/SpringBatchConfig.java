@@ -17,6 +17,7 @@ import org.springframework.batch.core.repository.support.JobRepositoryFactoryBea
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -24,7 +25,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 
 
-@Configuration
+//@Configuration
 @Slf4j
 public class SpringBatchConfig {
 
@@ -162,5 +163,4 @@ public class SpringBatchConfig {
 //				.writer(firstItemWriter)
 //				.build();
 //	}
-
 }
