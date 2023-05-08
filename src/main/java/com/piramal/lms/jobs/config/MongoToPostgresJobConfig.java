@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -61,11 +62,12 @@ public class MongoToPostgresJobConfig {
         return factory.getObject();
     }
 
-    @Bean(name = "transactionManager")
+    @Bean(name = "transactionManagerMongo")
+    @Primary
     public PlatformTransactionManager getTransactionManagerMongo() {
         return new ResourcelessTransactionManager();
     }
-    @Bean(name = "jobLauncher")
+    @Bean(name = "jobLauncherMongo")
     public JobLauncher getJobLauncher() throws Exception {
         TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
         jobLauncher.setJobRepository(getJobRepository());
@@ -93,9 +95,9 @@ public class MongoToPostgresJobConfig {
     }
 
     @Bean
-    public Step getMongoToPostgresStep(JobRepository jobRepository, @Qualifier("transactionManager") PlatformTransactionManager platformTransactionManager) throws Exception {
+    public Step getMongoToPostgresStep(JobRepository jobRepository, @Qualifier("transactionManagerMongo") PlatformTransactionManager platformTransactionManager) throws Exception {
         return new StepBuilder("mongoToPostgresStep", getJobRepository())
-                .<AccountingMongo, AccountingPostgresql>chunk(40, platformTransactionManager)
+                .<AccountingMongo, AccountingPostgresql>chunk(400, platformTransactionManager)
                 .reader(getMongoItemReader())
                 .writer(accountItemWriter)
                 .build();

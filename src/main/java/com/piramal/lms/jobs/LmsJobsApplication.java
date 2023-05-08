@@ -9,9 +9,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableBatchProcessing
-//@EnableAsync
-//@EnableScheduling
-@EntityScan("com.piramal.lms.jobs.model")
+@EnableAsync
+@EnableScheduling
 public class LmsJobsApplication {
 
     public static void main(String[] args) {

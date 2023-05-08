@@ -25,7 +25,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 
 
-//@Configuration
+@Configuration
 @Slf4j
 public class SpringBatchConfig {
 

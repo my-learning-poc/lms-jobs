@@ -27,7 +27,7 @@ public class MongoJobService {
 
 
 	@Autowired
-	public MongoJobService(JobLauncher jobLauncher, @Qualifier("mongoToPostgresJob") Job mongoToPostgresJob) {
+	public MongoJobService(@Qualifier("jobLauncherMongo")JobLauncher jobLauncher, @Qualifier("mongoToPostgresJob") Job mongoToPostgresJob) {
 		this.jobLauncher = jobLauncher;
 		this.mongoToPostgresJob = mongoToPostgresJob;
 	}
