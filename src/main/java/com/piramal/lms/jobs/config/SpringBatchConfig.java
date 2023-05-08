@@ -67,16 +67,16 @@ public class SpringBatchConfig {
         return jobLauncher;
     }
 
-    @Bean(name = "interestAccrualJob")
+    /*@Bean(name = "interestAccrualJob")
     public Job interestAccrualJob(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager) {
         return new JobBuilder("interestAccrualJob", jobRepository).preventRestart()
                 .start(getInterestAccrualStep(jobRepository, platformTransactionManager))
 //                .next(getRps(jobRepository, platformTransactionManager))
                 .listener(jobListener)
                 .build();
-    }
+    }*/
 
-    @Bean(name = "interestAccrualStep")
+  /*  @Bean(name = "interestAccrualStep")
     public Step getInterestAccrualStep(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager) {
         return new StepBuilder("interestAccrualStep", jobRepository)
                 .<Loan, InterestAccrual>chunk(4, platformTransactionManager)
@@ -85,7 +85,7 @@ public class SpringBatchConfig {
                 .writer(logWriter)
                 .listener(stepListener)
                 .build();
-    }
+    }*/
 
 //    @Bean(name = "getLoans")
 //    public Step getLoans(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager) {

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class JobService {
-
+/*
 	private final JobLauncher jobLauncher;
 
 	private final Job interestAccrualJob;
@@ -55,5 +55,7 @@ public class JobService {
 			log.error("Exception while starting job");
 		}
 	}
+
+	*/
 
 }
