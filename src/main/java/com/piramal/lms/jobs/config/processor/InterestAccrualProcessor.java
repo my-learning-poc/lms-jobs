@@ -1,4 +1,4 @@
-package com.piramal.lms.jobs.chunk;
+package com.piramal.lms.jobs.config.processor;
 
 import com.piramal.lms.jobs.model.InterestAccrual;
 import com.piramal.lms.jobs.model.Loan;

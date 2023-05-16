@@ -1,4 +1,4 @@
-package com.piramal.lms.jobs.config;
+package com.piramal.lms.jobs.config.reader;
 
 import com.piramal.lms.jobs.model.AccountingMongo;
 import org.springframework.batch.item.data.MongoItemReader;

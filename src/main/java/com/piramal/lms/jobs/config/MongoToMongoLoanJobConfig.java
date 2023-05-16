@@ -1,15 +1,17 @@
 package com.piramal.lms.jobs.config;
 
-import com.piramal.lms.jobs.chunk.InterestAccrualProcessor;
+import com.mongodb.MongoException;
+import com.piramal.lms.jobs.config.processor.InterestAccrualProcessor;
+import com.piramal.lms.jobs.config.reader.LoanItemReaderMongo;
+import com.piramal.lms.jobs.config.writer.LoanInterestAccuralWriter;
 import com.piramal.lms.jobs.listener.JobListener;
-import com.piramal.lms.jobs.model.AccountingMongo;
-import com.piramal.lms.jobs.model.AccountingPostgresql;
+import com.piramal.lms.jobs.listener.SkipListener;
+import com.piramal.lms.jobs.listener.SkipListenerImpl;
 import com.piramal.lms.jobs.model.LoanDataRead;
 import com.piramal.lms.jobs.model.LoanDataWrite;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
@@ -17,23 +19,18 @@ import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.data.MongoItemReader;
+import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
 
 @Configuration
 //@EnableJpaRepositories(basePackages = "com.piramal.lms.jobs.repository")
@@ -41,6 +38,7 @@ import java.util.HashMap;
 public class MongoToMongoLoanJobConfig {
 
     private final LoanInterestAccuralWriter loanInterestAccuralWriter;
+    private final LoanItemReaderMongo loanItemReaderMongo;
 
     private final InterestAccrualProcessor interestAccrualProcessor;
     private final DataSource dataSource;
@@ -48,15 +46,21 @@ public class MongoToMongoLoanJobConfig {
     private final EntityManagerFactory entityManagerFactory;
     private final MongoOperations mongoOperations;
     private final JobListener jobListener;
+    private final SkipListener skipListener;
 
-    public MongoToMongoLoanJobConfig(LoanInterestAccuralWriter loanInterestAccuralWriter, InterestAccrualProcessor interestAccrualProcessor, DataSource dataSource, MongoTemplate mongoTemplate, EntityManagerFactory entityManagerFactory, MongoOperations mongoOperations, JobListener jobListener) {
+    private final SkipListenerImpl skipListenerImpl;
+
+    public MongoToMongoLoanJobConfig(LoanInterestAccuralWriter loanInterestAccuralWriter, LoanItemReaderMongo loanItemReaderMongo, InterestAccrualProcessor interestAccrualProcessor, DataSource dataSource, MongoTemplate mongoTemplate, EntityManagerFactory entityManagerFactory, MongoOperations mongoOperations, JobListener jobListener, SkipListener skipListener, SkipListenerImpl skipListenerImpl) {
         this.loanInterestAccuralWriter = loanInterestAccuralWriter;
+        this.loanItemReaderMongo = loanItemReaderMongo;
         this.interestAccrualProcessor = interestAccrualProcessor;
         this.dataSource = dataSource;
         this.mongoTemplate = mongoTemplate;
         this.entityManagerFactory = entityManagerFactory;
         this.mongoOperations = mongoOperations;
         this.jobListener = jobListener;
+        this.skipListener = skipListener;
+        this.skipListenerImpl = skipListenerImpl;
     }
 
     @Bean(name = "transactionManagerLoanInterest")
@@ -90,29 +94,28 @@ public class MongoToMongoLoanJobConfig {
         return new JobBuilder("loanInterestAccuralJob", getJobRepositoryPostgresqlLoanInterest());
     }
 
-    @Bean(name = "getMongoLoanItemReader")
-    @StepScope
-    public MongoItemReader<LoanDataRead> getMongoLoanItemReader() {
-        MongoItemReader<LoanDataRead> reader = new MongoItemReader<LoanDataRead>();
-        reader.setTemplate(mongoTemplate);
-        reader.setCollection("loan_ds");
-        reader.setQuery(new Query(Criteria.where("active").is(true)));
-        reader.setTargetType(LoanDataRead.class);
-        reader.setSort(new HashMap<String, Sort.Direction>() {{
-            put("_id", Sort.Direction.DESC);
-        }});
-        return reader;
-    }
-
     @Bean
     public Step getloanInterestAccuralStep(@Qualifier("jobRepositoryPostgresqlLoanInterest") JobRepository jobRepository, @Qualifier("transactionManagerLoanInterest") PlatformTransactionManager platformTransactionManager) throws Exception {
         return new StepBuilder("loanInterestAccuralStep", getJobRepositoryPostgresqlLoanInterest())
                 .<LoanDataRead, LoanDataWrite>chunk(400, platformTransactionManager)
-                .reader(getMongoLoanItemReader())
+                .reader(loanItemReaderMongo.getMongoLoanItemReader())
                 .processor(interestAccrualProcessor)
                 .writer(loanInterestAccuralWriter)
+                .faultTolerant()
+                .skip(MongoException.class)
+                .skip(Throwable.class)
+//                .skipLimit(Integer.MAX_VALUE)
+                .skipPolicy(new AlwaysSkipItemSkipPolicy())
+                //With retry avoid using skipPolicy (.skipPolicy(new AlwaysSkipItemSkipPolicy()))
+//                .skipLimit(100)
+//                .retryLimit(2)
+//                .retry(Throwable.class)
+//                .listener(skipListener)
+                .listener(skipListenerImpl)
                 .build();
     }
+
+
 
     @Bean(name = "loanInterestAccuralJob")
     public Job loanInterestAccuralJob(JobRepository jobRepository, @Qualifier("transactionManagerLoanInterest") PlatformTransactionManager platformTransactionManager) throws Exception {

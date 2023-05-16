@@ -1,4 +1,4 @@
-package com.piramal.lms.jobs.config;
+package com.piramal.lms.jobs.config.writer;
 
 import com.piramal.lms.jobs.model.AccountingPostgresql;
 import com.piramal.lms.jobs.model.LoanDataWrite;

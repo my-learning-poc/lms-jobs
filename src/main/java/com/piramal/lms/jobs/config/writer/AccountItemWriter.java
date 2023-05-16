@@ -1,4 +1,4 @@
-package com.piramal.lms.jobs.config;
+package com.piramal.lms.jobs.config.writer;
 
 import com.piramal.lms.jobs.model.AccountingPostgresql;
 import com.piramal.lms.jobs.repository.AccountingPostgresqlRepository;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 public class AccountItemWriter implements ItemWriter<AccountingPostgresql> {
     @Autowired
     private AccountingPostgresqlRepository accountingPostgresqlRepository;
+
 
     @Override
     public void write(Chunk<? extends AccountingPostgresql> chunk) throws Exception {
