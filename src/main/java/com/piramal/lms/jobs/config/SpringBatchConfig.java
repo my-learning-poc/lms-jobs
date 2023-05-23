@@ -1,7 +1,7 @@
 package com.piramal.lms.jobs.config;
 
-import com.piramal.lms.jobs.chunk.InterestAccrualProcessor;
 import com.piramal.lms.jobs.chunk.LogWriter;
+import com.piramal.lms.jobs.config.processor.InterestAccrualProcessor;
 import com.piramal.lms.jobs.listener.JobListener;
 import com.piramal.lms.jobs.listener.StepListener;
 import com.piramal.lms.jobs.model.InterestAccrual;

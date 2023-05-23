@@ -1,5 +1,6 @@
 package com.piramal.lms.jobs.config;
 
+import com.piramal.lms.jobs.config.writer.AccountItemWriter;
 import com.piramal.lms.jobs.listener.JobListener;
 import com.piramal.lms.jobs.model.AccountingMongo;
 import com.piramal.lms.jobs.model.AccountingPostgresql;
