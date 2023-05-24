@@ -33,7 +33,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 
 @Configuration
-//@EnableJpaRepositories(basePackages = "com.piramal.lms.jobs.repository")
 @EnableMongoRepositories(basePackages = "com.piramal.lms.jobs.repository")
 public class MongoToMongoLoanJobConfig {
 
@@ -43,8 +42,6 @@ public class MongoToMongoLoanJobConfig {
     private final InterestAccrualProcessor interestAccrualProcessor;
     private final DataSource dataSource;
     private final MongoTemplate mongoTemplate;
-    private final EntityManagerFactory entityManagerFactory;
-    private final MongoOperations mongoOperations;
     private final JobListener jobListener;
     private final SkipListener skipListener;
 
@@ -56,8 +53,6 @@ public class MongoToMongoLoanJobConfig {
         this.interestAccrualProcessor = interestAccrualProcessor;
         this.dataSource = dataSource;
         this.mongoTemplate = mongoTemplate;
-        this.entityManagerFactory = entityManagerFactory;
-        this.mongoOperations = mongoOperations;
         this.jobListener = jobListener;
         this.skipListener = skipListener;
         this.skipListenerImpl = skipListenerImpl;
@@ -96,7 +91,8 @@ public class MongoToMongoLoanJobConfig {
 
     @Bean
     public Step getloanInterestAccuralStep(@Qualifier("jobRepositoryPostgresqlLoanInterest") JobRepository jobRepository, @Qualifier("transactionManagerLoanInterest") PlatformTransactionManager platformTransactionManager) throws Exception {
-        return new StepBuilder("loanInterestAccuralStep", getJobRepositoryPostgresqlLoanInterest())
+        return new StepBuilder("loanInterestAccuralStep")
+                .repository(jobRepository)
                 .<LoanDataRead, LoanDataWrite>chunk(400, platformTransactionManager)
                 .reader(loanItemReaderMongo.getMongoLoanItemReader())
                 .processor(interestAccrualProcessor)
