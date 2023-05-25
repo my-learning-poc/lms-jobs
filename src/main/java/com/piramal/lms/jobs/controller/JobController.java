@@ -18,9 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/job")
 public class JobController {
-	
+	/*
 	private final JobService jobService;
-	
 	private final JobOperator jobOperator;
 
 	public JobController(JobService jobService, JobOperator jobOperator) {
@@ -44,4 +43,6 @@ public class JobController {
 		}
 		return "Job Stopped...";
 	}
+
+	*/
 }
